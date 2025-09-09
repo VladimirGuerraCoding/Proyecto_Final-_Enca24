@@ -10,6 +10,7 @@ const Register = () => {
     const [contrasena, setContrasena] = useState('');
     const [confirmarContrasena, setConfirmarContrasena] = useState('');
     const [rol, setRol] = useState('Estudiante');
+    const [especialidad, setEspecialidad] = useState(''); // 👈 agregado
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
@@ -36,6 +37,10 @@ const Register = () => {
         if (contrasena !== confirmarContrasena) {
             newErrors.confirmarContrasena = 'Las contraseñas no coinciden';
         }
+
+        if (rol === 'Profesor' && especialidad.trim().length < 3) {
+            newErrors.especialidad = 'La especialidad es obligatoria para profesores';
+        }
         
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -51,21 +56,26 @@ const Register = () => {
         setIsLoading(true);
         
         try {
-            // Mapear rol a rol_id según tu base de datos
-            const rol_id = rol === 'Estudiante' ? 3 : (rol === 'Profesor' ? 1 : 2); // 3=Estudiante, 1=Profesor, 2=admin
+            const rol_id = rol === 'Estudiante' ? 2 : 1;
+            
+            const bodyData = { 
+                nombre, 
+                apellido, 
+                correo, 
+                contrasena, 
+                rol_id 
+            };
+
+            if (rol === 'Profesor') {
+                bodyData.especialidad = especialidad; // 👈 agregado
+            }
             
             const response = await fetch('/usuarios/registro/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ 
-                    nombre, 
-                    apellido, 
-                    correo, 
-                    contrasena, 
-                    rol_id 
-                }),
+                body: JSON.stringify(bodyData),
             });
             
             if (response.ok) {
@@ -186,6 +196,24 @@ const Register = () => {
                         </div>
                         <p className="role-description-text">{getRoleDescription()}</p>
                     </div>
+
+                    {/* 👇 Campo visible solo si el rol es Profesor */}
+                    {rol === 'Profesor' && (
+                        <div className="form-group">
+                            <label htmlFor="especialidad">Especialidad</label>
+                            <input
+                                id="especialidad"
+                                type="text"
+                                placeholder="Ej: Matemáticas"
+                                value={especialidad}
+                                onChange={(e) => setEspecialidad(e.target.value)}
+                                required
+                                disabled={isLoading}
+                                className={errors.especialidad ? 'error' : ''}
+                            />
+                            {errors.especialidad && <span className="error-message">{errors.especialidad}</span>}
+                        </div>
+                    )}
                     
                     <div className="form-row">
                         <div className="form-group">
