@@ -9,7 +9,7 @@ load_dotenv()
 
 class Config:
     # URL de conexión a la base de datos
-    DATABASE_URI = os.getenv('DATABASE_URI', 'postgresql://postgres:root@localhost/escuela')
+    DATABASE_URI = os.getenv('DATABASE_URI', 'postgresql://postgres:root@localhost/Final_proyecto-ENCA24')
     
     # Clave secreta para firmar tokens JWT, utiliza una clave por defecto o carga desde las variables de entorno
     SECRET_KEY = os.getenv('SECRET_KEY', 'mi_clave_secreta')  # Cambia 'mi_clave_secreta' a una clave más segura

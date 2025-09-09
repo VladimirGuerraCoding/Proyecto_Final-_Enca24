@@ -6,7 +6,7 @@ from models.estudio import Estudio
 router = APIRouter()
 
 # Ruta para crear un nuevo estudio
-@router.post("/estudios_create/")
+@router.post("/create/")
 def create_estudio(estudio: Estudio):
     try:
         conn = get_db_connection()
@@ -25,7 +25,7 @@ def create_estudio(estudio: Estudio):
     return new_estudio
 
 # Ruta para obtener todos los estudios
-@router.get("/estudios_get/")
+@router.get("/")
 def get_estudios():
     try:
         conn = get_db_connection()
@@ -40,7 +40,7 @@ def get_estudios():
     return estudios
 
 # Ruta para actualizar la información de un estudio por su ID
-@router.put("/estudios_update/{id}")
+@router.put("/update/{id}")
 def update_estudio(id: int, estudio: Estudio):
     try:
         conn = get_db_connection()
@@ -61,7 +61,7 @@ def update_estudio(id: int, estudio: Estudio):
     return updated_estudio
 
 # Ruta para eliminar un estudio por su ID
-@router.delete("/estudios_delete/{id}")
+@router.delete("/delete/{id}")
 def delete_estudio(id: int):
     try:
         conn = get_db_connection()

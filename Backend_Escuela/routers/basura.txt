@@ -2,29 +2,28 @@
 from fastapi import APIRouter, HTTPException
 from db import get_db_connection
 from models.profesores import Profesor
-import psycopg2.extras  # 👈 Importante para RealDictCursor
 
 router = APIRouter()
 
 # Endpoint para listar profesores
-@router.get("/list")
+@router.get("/profesores/list")
 def listar_profesores():
     conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)  # 👈 cursor corregido
+    cur = conn.cursor()
     cur.execute('SELECT id, nombre, apellido FROM profesores')
     profesores = cur.fetchall()
     cur.close(); conn.close()
     return profesores
 
 # Ruta para crear un nuevo profesor
-@router.post("/create/", response_model=Profesor)
+@router.post("/profesores_create/", response_model=Profesor)
 def create_profesor(profesor: Profesor):
     conn = None
     cur = None
     try:
         # Conexión a la base de datos
         conn = get_db_connection()
-        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)  # 👈 cursor corregido
+        cur = conn.cursor()
         
         # Verificar si el correo ya existe en la base de datos
         cur.execute('SELECT id FROM profesores WHERE correo = %s', (profesor.correo,))
@@ -33,11 +32,8 @@ def create_profesor(profesor: Profesor):
             raise HTTPException(status_code=400, detail="El correo ya está registrado")
         
         # Insertar nuevo profesor en la base de datos
-        cur.execute('''
-            INSERT INTO profesores (nombre, apellido, correo, especialidad, usuario_id) 
-            VALUES (%s, %s, %s, %s, %s) 
-            RETURNING id, nombre, apellido, correo, especialidad, usuario_id
-        ''', (profesor.nombre, profesor.apellido, profesor.correo, profesor.especialidad, profesor.usuario_id))
+        cur.execute('INSERT INTO profesores (nombre, apellido, correo, especialidad, usuario_id) VALUES (%s, %s, %s, %s, %s) RETURNING id, nombre, apellido, correo, especialidad, usuario_id',
+                    (profesor.nombre, profesor.apellido, profesor.correo, profesor.especialidad, profesor.usuario_id))
         new_profesor_data = cur.fetchone()
         conn.commit()
         
@@ -60,7 +56,7 @@ def create_profesor(profesor: Profesor):
         # Relevamos el error específico
         raise 
     except Exception as e:
-        import traceback; traceback.print_exc()  # 👈 imprime el error real en consola
+        # Manejamos cualquier otro error
         raise HTTPException(status_code=500, detail=f"Error al crear el profesor: {e}")
     finally:
         # Cerramos el cursor y la conexión
@@ -70,7 +66,7 @@ def create_profesor(profesor: Profesor):
             conn.close()
 
 # Ruta para obtener todos los profesores
-@router.get("/")
+@router.get("/profesores_get/")
 def get_profesores():
     conn = None
     cur = None
@@ -106,7 +102,7 @@ def get_profesores():
             conn.close()
 
 # Ruta para actualizar la información de un profesor por su ID
-@router.put("/update/{id}", response_model=Profesor)
+@router.put("/profesores_update/{id}", response_model=Profesor)
 def update_profesor(id: int, profesor: Profesor):
     conn = None
     cur = None
@@ -160,7 +156,7 @@ def update_profesor(id: int, profesor: Profesor):
             conn.close()
 
 # Ruta para eliminar un profesor por su ID
-@router.delete("/delete/{id}")
+@router.delete("/profesores_delete/{id}")
 def delete_profesor(id: int):
     conn = None
     cur = None
@@ -187,3 +183,4 @@ def delete_profesor(id: int):
             conn.close()
 
     return {"message": "Profesor eliminado"}
+
