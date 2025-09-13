@@ -39,6 +39,7 @@ def read_root():
 @app.get("/health")
 def health_check():
     return {"status": "OK", "message": "La API está funcionando correctamente"}
+if __name__ == "__main__":
     import uvicorn
     print("🚀 Iniciando el servidor de la API...")
     print("📍 URL: http://localhost:8000")

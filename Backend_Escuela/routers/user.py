@@ -8,7 +8,11 @@ from security.auth import get_current_user, verificar_rol
 from passlib.context import CryptContext  # Importar CryptContext para la verificación de contraseñas
 from models.user import User, UserUpdate, UserProfile
 
+
 router = APIRouter()
+
+# Roles válidos
+ROLES_VALIDOS = [1, 2, 3]  # 1: estudiante, 2: profesor, 3: administrador
 
 # Configuración para JWT
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
@@ -32,19 +36,18 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
     try:
         # Verificar si el correo existe
         cur.execute('SELECT * FROM usuarios WHERE correo = %s', (form_data.username,))
-        user = cur.fetchone()
-        
-        if user is None or not verificar_contrasena(form_data.password, user['contrasena']):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Credenciales incorrectas",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+        existing_user = cur.fetchone()
+        if existing_user:
+            raise HTTPException(status_code=400, detail="El correo ya está registrado")
+
+        # Validar el rol
+        if existing_user['rol_id'] not in ROLES_VALIDOS:
+            raise HTTPException(status_code=400, detail="Rol inválido. Debe ser admin, estudiante o profesor.")
 
         # Crear token JWT
         token_data = {
-            "sub": user['correo'],
-            "rol_id": user['rol_id']
+            "sub": existing_user['correo'],
+            "rol_id": existing_user['rol_id']
         }
         access_token = create_access_token(data=token_data, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
         
@@ -110,12 +113,12 @@ def read_admin_data(current_user: dict = Depends(get_current_user)):
     return {"message": "Datos de administrador", "usuario": current_user}
 
 # Ruta solo accesible para profesores (rol_id = 2)
-@router.get("/usuarios/profesor", dependencies=[Depends(verificar_rol(2))])
+@router.get("/profesores/list", dependencies=[Depends(verificar_rol(2))])
 def read_profesor_data(current_user: dict = Depends(get_current_user)):
     return {"message": "Datos de profesor", "usuario": current_user}
 
 # Ruta solo accesible para estudiantes (rol_id = 3)
-@router.get("/usuarios/estudiante", dependencies=[Depends(verificar_rol(3))])
+@router.get("/estudiantes/{id}", dependencies=[Depends(verificar_rol(3))])
 def read_estudiante_data(current_user: dict = Depends(get_current_user)):
     return {"message": "Datos de estudiante", "usuario": current_user}
 
