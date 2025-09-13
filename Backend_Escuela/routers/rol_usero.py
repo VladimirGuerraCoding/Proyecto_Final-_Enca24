@@ -30,9 +30,28 @@ def registrar_usuario(usuario: Usuario):
         hashed_password = pwd_context.hash(usuario.contrasena)
 
         # Insertar nuevo usuario con rol_id en la base de datos
-        cur.execute(
-            'INSERT INTO usuarios (nombre, apellido, correo, contrasena, rol_id) VALUES (%s, %s, %s, %s, %s) RETURNING *',
-            (usuario.nombre, usuario.apellido, usuario.correo, hashed_password, usuario.rol_id)
+        if usuario.rol_id == 3:
+            cur.execute(
+                'INSERT INTO usuarios (nombre, apellido, correo, contrasena, rol_id) VALUES (%s, %s, %s, %s, %s) RETURNING *',
+                (usuario.nombre, usuario.apellido, usuario.correo, hashed_password, usuario.rol_id)
+        )
+        # insertar en tabla estudiantes..    
+        if usuario.rol_id == 1:
+            cur.execute(
+                'INSERT INTO estudiantes (nombre, apellido, correo, contrasena, rol_id) VALUES (%s, %s, %s, %s, %s) RETURNING *',
+                (usuario.nombre, usuario.apellido, usuario.correo, hashed_password, usuario.rol_id)
+        )
+        # insertar en tabla profesores..
+        if usuario.rol_id == 2:
+            cur.execute(
+                'INSERT INTO profesores (nombre, apellido, correo, contrasena, rol_id) VALUES (%s, %s, %s, %s, %s) RETURNING *',
+                (usuario.nombre, usuario.apellido, usuario.correo, hashed_password, usuario.rol_id)
+        )
+        # insertar en tabla profesores..
+        if usuario.rol_id == 2:
+            cur.execute(
+                'INSERT INTO profesores (nombre, apellido, correo, contrasena, rol_id) VALUES (%s, %s, %s, %s, %s) RETURNING *',
+                (usuario.nombre, usuario.apellido, usuario.correo, hashed_password, usuario.rol_id)
         )
         new_usuario = cur.fetchone()
         conn.commit()
