@@ -1,11 +1,20 @@
 from pydantic import BaseModel, validator
+from typing import Optional
+
 class Usuario(BaseModel):
     nombre: str
     apellido: str
     correo: str
     contrasena: str
-    rol_id: int  # Cambiar de rol a rol_id
+    rol_id: int
 
+    # Campos opcionales para estudiantes (rol_id=2)
+    edad: Optional[int] = None
+    direccion: Optional[str] = None
+
+    # Campo opcional para profesores (rol_id=1)
+    especialidad: Optional[str] = None
+    
     @validator('correo')
     def validar_correo(cls, v):
         if "@" not in v or "." not in v:
