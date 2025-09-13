@@ -50,10 +50,7 @@ async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends
         ):
             raise HTTPException(status_code=400, detail=" contraseña incorrecta")
 
-        # Verificar rol---=agregado para validar derechos de usuario=
-        #if user["rol_nombre"] != "admin":
-            #raise HTTPException(status_code=403, detail="No tiene permisos para acceder a este recurso")
-        
+              
     
         # Crear token JWT
         token_data = {"sub": user["correo"], "rol": user["rol_nombre"], "rol_id": user["rol_id"]}

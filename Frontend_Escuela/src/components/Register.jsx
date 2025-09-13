@@ -52,8 +52,8 @@ const Register = () => {
         
         try {
             // Mapear rol a rol_id según tu base de datos
-            const rol_id = rol === 'Estudiante' ? 3 : (rol === 'Profesor' ? 1 : 2); // 3=Estudiante, 1=Profesor, 2=admin
-            
+            const rol_id = rol === 'Estudiante' ? 1 : (rol === 'Profesor' ? 2 : 3); // 1=Estudiante, 2=Profesor, 3=admin
+
             const response = await fetch('/usuarios/registro/', {
                 method: 'POST',
                 headers: {
